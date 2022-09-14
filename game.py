@@ -36,15 +36,29 @@ class Player(pygame.sprite.Sprite):
         self.input()
         self.rect.center += self.direction * self.speed
 
+class CameraGroup(pygame.sprite.Group):
+    def __init__(self) -> None:
+        super().__init__()
+        self.display_surface = pygame.display.get_surface()
+        self.ground_surf = pygame.image.load('graphics/ground.png').convert_alpha()
+        self.ground_rect = self.ground_surf.get_rect(topleft = (0,0))
+
+    def custom_draw(self):
+        # ground
+        self.display_surface.blit(self.ground_surf, self.ground_rect)
+
+        # active elements
+        for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
+            self.display_surface.blit(sprite.image, sprite.rect)
 
 pygame.init()
 
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 1280
+HEIGHT = 720
 ds = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
-camera_group = pygame.sprite.Group()
+camera_group = CameraGroup()
 Player((640, 360), camera_group)
 
 for i in range(20):
@@ -62,7 +76,7 @@ while running:
     ds.fill('#71ddee')
 
     camera_group.update()
-    camera_group.draw(ds)
+    camera_group.custom_draw()
 
     pygame.display.update()
     clock.tick(60)
