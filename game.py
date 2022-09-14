@@ -1,3 +1,6 @@
+from ast import Lt
+from msilib.schema import ListView
+from re import L
 import pygame
 from random import randint
 
@@ -46,6 +49,14 @@ class CameraGroup(pygame.sprite.Group):
         self.half_w = self.display_surface.get_size()[0] // 2
         self.half_h = self.display_surface.get_size()[1] // 2
 
+        # box setup
+        self.camera_borders = {'left': 200, 'right': 200, 'top': 100, 'bottom': 100}
+        l = self.camera_borders['left']
+        t = self.camera_borders['top']
+        w = self.display_surface.get_size()[0] - (self.camera_borders['left'] + self.camera_borders['right'])
+        h = self.display_surface.get_size()[1] - (self.camera_borders['top'] + self.camera_borders['bottom'])
+        self.camera_rect = pygame.Rect(l,t,w,h)
+
         # ground
         self.ground_surf = pygame.image.load('graphics/ground.png').convert_alpha()
         self.ground_rect = self.ground_surf.get_rect(topleft = (0,0))
@@ -54,9 +65,27 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.x = target.rect.centerx - self.half_w
         self.offset.y = target.rect.centery - self.half_h
 
+    def box_target_camera(self, target):
+        
+        if target.rect.left < self.camera_rect.left:
+            self.camera_rect.left = target.rect.left
+
+        if target.rect.right > self.camera_rect.right:
+            self.camera_rect.right = target.rect.right
+
+        if target.rect.top < self.camera_rect.top:
+            self.camera_rect.top = target.rect.top
+
+        if target.rect.bottom > self.camera_rect.bottom:
+            self.camera_rect.bottom = target.rect.bottom
+
+        self.offset.x = self.camera_rect.left - self.camera_borders['left']
+        self.offset.y = self.camera_rect.top - self.camera_borders['top']
+
     def custom_draw(self, player):
 
-        self.center_target_camera(player)
+        # self.center_target_camera(player)
+        self.box_target_camera(player)
 
         # ground
         ground_offset = self.ground_rect.topleft - self.offset
@@ -66,6 +95,7 @@ class CameraGroup(pygame.sprite.Group):
         for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
+
 
 pygame.init()
 
@@ -78,8 +108,8 @@ camera_group = CameraGroup()
 player = Player((640, 360), camera_group)
 
 for i in range(20):
-    random_x = randint(0, 1000)
-    random_y = randint(0, 1000)
+    random_x = randint(1000, 2000)
+    random_y = randint(1000, 2000)
     Tree((random_x, random_y), camera_group)
 
 running = True
