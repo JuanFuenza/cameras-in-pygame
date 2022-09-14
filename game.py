@@ -88,19 +88,18 @@ class CameraGroup(pygame.sprite.Group):
     def keyboard_control(self):
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_LEFT]:
-            self.offset.x -= self.keyboard_speed
-        if keys[pygame.K_RIGHT]:
-            self.offset.x += self.keyboard_speed
-        if keys[pygame.K_DOWN]:
-            self.offset.y += self.keyboard_speed
-        if keys[pygame.K_UP]:
-            self.offset.y -= self.keyboard_speed
+        if keys[pygame.K_LEFT]: self.camera_rect.x -= self.keyboard_speed
+        if keys[pygame.K_RIGHT]: self.camera_rect.x += self.keyboard_speed
+        if keys[pygame.K_DOWN]: self.camera_rect.y += self.keyboard_speed
+        if keys[pygame.K_UP]: self.camera_rect.y -= self.keyboard_speed
+
+        self.offset.x = self.camera_rect.left - self.camera_borders['left']
+        self.offset.y = self.camera_rect.top - self.camera_borders['top']
 
     def custom_draw(self, player):
 
         # self.center_target_camera(player)
-        # self.box_target_camera(player)
+        self.box_target_camera(player)
         self.keyboard_control()
 
         # ground
